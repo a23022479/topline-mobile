@@ -17,6 +17,12 @@ let router = new Router({
       name: 'login',
       component: () => import('../views/login')
     },
+    // 未登录状态跳转的登录路由
+    {
+      path: '/login/nologin',
+      name: 'login',
+      component: () => import('../views/login')
+    },
     // 布局路由
     {
       path: '/layout',
@@ -28,8 +34,31 @@ let router = new Router({
           path: '/home',
           name: 'home',
           component: () => import('../views/home')
+        },
+        // 搜索路由
+        {
+          path: '/search',
+          name: 'search',
+          component: () => import('../views/search')
+        },
+        {
+          path: '/searchlist/:key',
+          name: 'searchlist',
+          component: () => import('../views/searchlist')
+        },
+        // 用户
+        {
+          path: '/me',
+          name: 'me',
+          component: () => import('../views/me')
         }
       ]
+    },
+    // 详情页面路由
+    {
+      path: '/detail/:artid',
+      name: 'detail',
+      component: () => import('../views/detail')
     }
   ]
 })

@@ -64,7 +64,12 @@ export default {
         this.$store.commit('getUser', res.data.data)
         this.loading = false
         // 跳转页面
-        this.$router.push('/home')
+        // 如果当前路由不是login,而是nologin,则登录的时候跳转到上一次访问的页面
+        if (this.$route.path !== '/login') {
+          this.$router.back()
+        } else {
+          this.$router.push('/home')
+        }
       } catch (error) {
         console.log(error)
         Dialog.alert({

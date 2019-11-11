@@ -6,30 +6,69 @@
         <van-tab v-for="(item,index) in channelList" :key="index" :title="item.name">
             <van-pull-refresh v-model="item.pull" @refresh="onRefresh">
                  <van-list v-model="item.up" :finished="item.finished" finished-text="没有更多了" @load="onLoad">
-                   <van-cell class="mycell" v-for="(artitem,artindex) in item.articleList" :key="artindex" :title="artitem.title"/>
+                   <van-cell class="mycell" v-for="(artitem,artindex) in item.articleList" :key="artindex" :title="artitem.title">
+                     <template slot="label">
+                        <van-grid :border="false" :column-num="3" v-if="artitem.cover.type > 0">
+                          <van-grid-item v-for="(imgitem,imgindex) in artitem.cover.images" :key="imgindex">
+                            <van-image lazy-load :src="imgitem" />
+                          </van-grid-item>
+                        </van-grid>
+                            <!-- 作者,评论数,时间 -->
+                            <div class="other">
+                              <div class="other-left">
+                                <span>作者:{{artitem.aut_name}}</span>
+                                <span>{{artitem.comm_count}}评论</span>
+                                <span>{{artitem.pubdate | relativeTime}}</span>
+                              </div>
+                              <div class="other-right">
+                                <van-icon @click="openmore(artitem, item.articleList)" name="cross" />
+                              </div>
+                            </div>
+                     </template>
+                   </van-cell>
                 </van-list>
             </van-pull-refresh>
         </van-tab>
       </van-tabs>
       <div class="myicon">
-        <van-icon name="wap-nav"/>
+        <van-icon @click="showpop" name="wap-nav"/>
       </div>
     </div>
+    <!-- 频道管理弹框 -->
+    <channelPop v-model="show" :channelList="channelList" :activeTab.sync="activeTab"></channelPop>
+    <!-- 更多操作弹框 -->
+    <moredialog v-model="dialogshow" :currentItem="currentItem" :itemList="itemList"></moredialog>
   </div>
 </template>
 
 <script>
+// 导入频道管理组件
+import channelPop from '@/components/channelpop'
+// 导入更多操作组件
+import moredialog from '@/components/moredialog'
 // 导入获取channel数组的方法
 import { getChannel } from '@/api/channel.js'
 // 导入获取文章列表的方法
 import { getArticle } from '@/api/article.js'
 export default {
+  components: {
+    channelPop,
+    moredialog
+  },
   data () {
     return {
       // 频道数组
       channelList: [],
       // 默认选中的频道下标
-      activeTab: 0
+      activeTab: 0,
+      // 弹框的显示与隐藏
+      show: false,
+      // 更多操作弹框的隐藏于显示
+      dialogshow: false,
+      // 当前操作的数据对象
+      currentItem: {},
+      // 当前显示的数据源
+      itemList: []
     }
   },
   methods: {
@@ -139,7 +178,21 @@ export default {
         // 时间戳
         this.$set(item, 'timestamp', 0)
       })
+    },
+    // 打开弹框
+    showpop () {
+      this.show = true
+    },
+    // 更多操作弹窗
+    openmore (artitem, articleList) {
+      // 打开弹窗
+      this.dialogshow = true
+      // 得到当前文章
+      // 得到当前显示的文章数据源
+      this.currentItem = artitem
+      this.itemList = articleList
     }
+
   },
   created () {
     this.getChannelList()
@@ -179,5 +232,15 @@ export default {
 }
 .mycell{
   line-height: 50px;
+}
+.other{
+  display: flex;
+  justify-content: space-between;
+  .other-left{
+    span{
+      margin: 0 10px;
+      font-size: 12px;
+    }
+  }
 }
 </style>
